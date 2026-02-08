@@ -2,9 +2,12 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using FSProduct_CategoryApi.DAL;
 using FSProduct_CategoryApi.Entities.Auth;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +19,28 @@ builder.Services.AddDbContext<FSDBApiContext>(options =>
 );
 
 builder.Services.AddIdentity<AppUser, IdentityRole>().AddEntityFrameworkStores<FSDBApiContext>().AddDefaultTokenProviders();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        var tokenoption = builder.Configuration.GetSection("TokenOptions").Get<TokenOption>();
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+
+            ValidIssuer = tokenoption.Issuer,
+            ValidAudience = tokenoption.Audience,
+
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(tokenoption.SecurityKey)
+            )
+        };
+    });
+
+
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
 builder.Services.AddControllers();
