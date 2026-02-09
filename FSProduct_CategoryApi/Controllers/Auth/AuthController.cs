@@ -23,15 +23,16 @@ namespace FSProduct_CategoryApi.Controllers.Auth
         private readonly TokenOption _tokenOptions;
 
 
-        public AuthController(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager, IMapper mapper, IConfiguration config, Entities.Auth.TokenOption tokenOptions)
+        public AuthController(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager, IMapper mapper, IConfiguration config)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _mapper = mapper;
 
             _config = config;
-            _tokenOptions = _config.GetSection("TokenOptions").Get<Entities.Auth.TokenOption>();
+            _tokenOptions = _config.GetSection("TokenOptions").Get<TokenOption>();
         }
+        
 
 
 
@@ -86,11 +87,13 @@ namespace FSProduct_CategoryApi.Controllers.Auth
             {
 
     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-    new Claim(ClaimTypes.Name, user.Email),
+    new Claim(ClaimTypes.Name, user.UserName),
     new Claim(ClaimTypes.Email, user.Email),
 
             };
+            //Extensiondan gelir sttaic etdiyimize gore
             claims.AddFullName(user.FullName);
+
             foreach(var role in await _userManager.GetRolesAsync(user))
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
