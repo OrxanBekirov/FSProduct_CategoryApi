@@ -1,6 +1,8 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using FSProduct_CategoryApi.DAL;
+using FSProduct_CategoryApi.DAL.Repositories.Abstract;
+using FSProduct_CategoryApi.DAL.Repositories.Concrete.EntityFramework;
 using FSProduct_CategoryApi.Entities.Auth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -40,10 +42,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+builder.Services.AddScoped<ICategoryRepository, EfCategoryrepository>();
+builder.Services.AddScoped<IProductRepository,EfProductRepository>();
 
-builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
 builder.Services.AddControllers();
+builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
+
 //Validation Burda konfiqrasiya edirem 
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
